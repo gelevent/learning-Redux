@@ -1,6 +1,6 @@
 import { useState, useEffect} from 'react';
 import { useDispatch } from 'react-redux';
-import { addTask } from '../features/tasks/tasksSlice';
+import { addTask, editTask } from '../features/tasks/tasksSlice';
 
 const TaskForm = ({ taskToEdit, clearEdit }) => {
     const [title, setTitle] = useState('');
