@@ -1,26 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { useDispatch } from 'react-redux';
 import { addTask } from '../features/tasks/tasksSlice';
 
-const TaskForm = () => {
-    const [title, setTitle] = useState(''); 
-    const [description, setDescription] = useState(''); 
-    const [priority, setPriority] = useState('Low'); 
-    const [status, setStatus] = useState('To-Do'); 
+const TaskForm = ({ taskToEdit, clearEdit }) => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [priority, setPriority] = useState('Low');
+    const [status, setStatus] = useState('To-Do');
 
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (taskToEdit) {
+            setTitle(taskToEdit.title);
+            setDescription(taskToEdit.description);
+            setPriority(taskToEdit.priority);
+            setStatus(taskToEdit.status);
+        }
+    }, [taskToEdit]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const newTask = {
-            id: Date.now(), 
-            title,
-            description,
-            priority,
-            status,
-        };
-        dispatch(addTask(newTask)); 
-        setTitle(''); 
+
+        if (taskToEdit) {
+            dispatch(editTask({ id: taskToEdit.id, title, description, priority, status }));
+            clearEdit(); 
+        } else {
+            dispatch(addTask({ id: Date.now(), title, description, priority, status }));
+        }
+
+        setTitle('');
         setDescription('');
         setPriority('Low');
         setStatus('To-Do');
@@ -28,7 +37,6 @@ const TaskForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className="p-4 bg-gray-100 rounded-lg shadow-md">
-            {}
             <div className="mb-4">
                 <label className="block text-sm font-bold">Title</label>
                 <input
@@ -40,7 +48,6 @@ const TaskForm = () => {
                     required
                 />
             </div>
-            {}
             <div className="mb-4">
                 <label className="block text-sm font-bold">Description</label>
                 <textarea
@@ -50,7 +57,6 @@ const TaskForm = () => {
                     placeholder="Task description"
                 />
             </div>
-            {}
             <div className="mb-4">
                 <label className="block text-sm font-bold">Priority</label>
                 <select value={priority} onChange={(e) => setPriority(e.target.value)} className="w-full px-2 py-1 border rounded">
@@ -59,7 +65,6 @@ const TaskForm = () => {
                     <option>High</option>
                 </select>
             </div>
-            {}
             <div className="mb-4">
                 <label className="block text-sm font-bold">Status</label>
                 <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-2 py-1 border rounded">
@@ -68,8 +73,9 @@ const TaskForm = () => {
                     <option>Done</option>
                 </select>
             </div>
-            {}
-            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">Add Task</button>
+            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
+                {taskToEdit ? 'Update Task' : 'Add Task'}
+            </button>
         </form>
     );
 };
